@@ -15,7 +15,11 @@ export const Tooltip = ({ content, children }: Props) => {
     <TooltipProvider>
       <TooltipRoot>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
-        {content && <TooltipContent>{content}</TooltipContent>}
+        {content && (
+          <TooltipContent className="dark:bg-secondary">
+            {content}
+          </TooltipContent>
+        )}
       </TooltipRoot>
     </TooltipProvider>
   );

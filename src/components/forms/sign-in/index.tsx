@@ -4,7 +4,7 @@ import { FormGenerator } from "@/components/global/form-generator";
 import { Loader } from "@/components/global/loader";
 import { Button } from "@/components/ui";
 import { CONSTANTS } from "@/constants";
-import { useCredentialSignIn } from "@/hooks/auth";
+import { useCredentialSignIn } from "@/hooks/use-auth";
 
 type Props = {
   redirectTo?: string | undefined;

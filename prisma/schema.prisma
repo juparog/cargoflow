@@ -15,34 +15,279 @@ datasource db {
 }
 
 model User {
-  id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email         String        @unique
-  emailVerified DateTime?     @map("email_verified")
-  authProvider  AUTH_PROVIDER @default(CREDENTIAL) @map("auth_provider")
-  firstname     String        @map("first_name")
-  lastname      String        @map("last_name")
-  username      String?       @unique
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  email         String           @unique
+  emailVerified DateTime?        @map("email_verified")
+  authProvider  AuthProviderType @default(CREDENTIAL) @map("auth_provider")
+  firstname     String           @map("first_name")
+  lastname      String           @map("last_name")
+  username      String?          @unique
   password      String?
+  roles         RoleType[]       @default([USER])
   image         String?
-  enabled       Boolean       @default(true)
-  createdAt     DateTime      @default(now()) @map("created_at")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
+  enabled       Boolean          @default(true)
+
+  notifications          Notification[]
+  notificationHistory    NotificationHistory[]
+  TransportRecord        TransportRecord[]
+  Package                Package[]
+  TransportRecordHistory TransportRecordHistory[]
+
+  createdAt      DateTime?        @default(now()) @map("created_at")
+  updatedAt      DateTime?        @updatedAt @map("updated_at")
+  PackageHistory PackageHistory[]
 
   @@map("users")
 }
 
+model Notification {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  title      String
+  content    String
+  type       NotificationType? @default(INFO)
+  priority   Int?              @default(0)
+  createdBy  String            @map("created_by") @db.Uuid
+  targetId   String?           @map("target_id") @db.Uuid
+  sourceId   String?           @map("source_id") @db.Uuid
+  sourceType String?           @map("source_type")
+
+  user                User                  @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  notificationHistory NotificationHistory[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@index([createdBy])
+  @@map("notifications")
+}
+
+model NotificationHistory {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  notificationId String   @map("notification_id") @db.Uuid
+  oldValue       String
+  newValue       String
+  changedBy      String   @map("changed_by") @db.Uuid
+  changedAt      DateTime @default(now())
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [changedBy], references: [id], onDelete: Cascade)
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@index([notificationId, changedBy])
+  @@map("notification_history")
+}
+
 model OTP {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
   email     String   @unique
   code      String
   expiresAt DateTime @map("expires_at")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
 
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@index([email])
   @@map("otps")
 }
 
-enum AUTH_PROVIDER {
+model Company {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  name        String  @unique
+  description String?
+  image       String?
+  address     String?
+  phone       String?
+  enabled     Boolean @default(true)
+
+  packages Package[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@index([name])
+  @@map("companies")
+}
+
+model Vehicle {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  name         String
+  licensePlate String       @unique @map("license_plate")
+  brand        String?
+  model        String?
+  type         VehicleType?
+  image        String?
+  enabled      Boolean      @default(true)
+
+  transportRecords TransportRecord[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@map("vehicles")
+}
+
+model TransportRecord {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  title         String
+  vehicleId     String                    @map("vehicle_id") @db.Uuid
+  driverId      String                    @map("driver_id") @db.Uuid
+  status        TransportRecordStatusType @default(PENDING)
+  notes         String[]
+  initialAmount Float                     @default(0.0) @map("initial_amount")
+  enabled       Boolean                   @default(true)
+
+  vehicle                  Vehicle                  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  driver                   User                     @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  transportRecordHistories TransportRecordHistory[]
+  transportExpenses        TransportExpense[]
+  packages                 Package[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@map("transport_records")
+}
+
+model TransportExpense {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  transportId String   @map("transport_id") @db.Uuid
+  amount      Float
+  isIncoming  Boolean  @default(false) @map("is_incoming")
+  description String?
+  images      String[]
+
+  transport TransportRecord @relation(fields: [transportId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@map("transport_expenses")
+}
+
+model TransportRecordHistory {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  transportId String   @map("transport_id") @db.Uuid
+  oldValue    String
+  newValue    String
+  changedBy   String   @map("changed_by") @db.Uuid
+  changedAt   DateTime @default(now())
+
+  transport TransportRecord @relation(fields: [transportId], references: [id], onDelete: Cascade)
+  user      User            @relation(fields: [changedBy], references: [id], onDelete: Cascade)
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@index([transportId, changedBy])
+  @@map("transport_history")
+}
+
+model DeliveryRoute {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  name        String
+  description String?
+  image       String?
+  enabled     Boolean @default(true)
+
+  packages Package[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@map("delivery_routes")
+}
+
+model Package {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  trakingCode String            @unique @map("traking_code")
+  companyId   String            @map("company_id") @db.Uuid
+  transportId String            @map("transport_id") @db.Uuid
+  status      PackageStatusType @default(PENDING)
+  asignedTo   String?           @map("asigned_to") @db.Uuid
+  routeId     String?           @map("route_id") @db.Uuid
+
+  company          Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  transport        TransportRecord  @relation(fields: [transportId], references: [id], onDelete: Cascade)
+  asigned          User?            @relation(fields: [asignedTo], references: [id], onDelete: SetNull)
+  route            DeliveryRoute?   @relation(fields: [routeId], references: [id], onDelete: SetNull)
+  packageHistories PackageHistory[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@index([trakingCode])
+  @@map("packages")
+}
+
+model PackageHistory {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  packageId String   @map("package_id") @db.Uuid
+  oldValue  String
+  newValue  String
+  changedBy String   @map("changed_by") @db.Uuid
+  changedAt DateTime @default(now())
+
+  package Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [changedBy], references: [id], onDelete: Cascade)
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@index([packageId, changedBy])
+  @@map("package_history")
+}
+
+enum RoleType {
+  ADMIN
+  USER
+  MANAGER
+}
+
+enum AuthProviderType {
   CREDENTIAL
   CLERK
+}
+
+enum NotificationType {
+  INFO
+  ERROR
+  SUCCESS
+  WARNING
+}
+
+enum VehicleType {
+  CAR
+  MOTORCYCLE
+  TRUCK
+  BUS
+  BICYCLE
+}
+
+enum TransportRecordStatusType {
+  PENDING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum PackageStatusType {
+  PENDING
+  ONGOING
+  IN_OFFICE
+  COMPLETED
+  RETURNED
 }

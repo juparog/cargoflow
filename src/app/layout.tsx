@@ -1,6 +1,10 @@
 import { auth } from "@/auth";
 import { ThemeProvider } from "@/components/theme";
-import { ReactQueryProvider, SessionProvider } from "@/providers";
+import {
+  ModalProvider,
+  ReactQueryProvider,
+  SessionProvider,
+} from "@/providers";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { Toaster } from "sonner";
@@ -32,8 +36,11 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <SessionProvider session={session}>
-            <ReactQueryProvider>{children}</ReactQueryProvider>
+            <ReactQueryProvider>
+              <ModalProvider>{children}</ModalProvider>
+            </ReactQueryProvider>
           </SessionProvider>
+
           <Toaster />
         </ThemeProvider>
       </body>

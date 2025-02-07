@@ -23,7 +23,6 @@ export function ModeToggle() {
           <span className="sr-only">Toggle theme</span>
         </Button>
       </DropdownMenuTrigger>
-      {/* // hacer que el menu no sea transparente */}
       <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800">
         <DropdownMenuItem onClick={() => setTheme("light")}>
           Light

@@ -1,4 +1,5 @@
-import { About, Home } from "@/icons";
+import { Home } from "@/icons";
+import { FileText, Package, Truck, Users } from "lucide-react";
 import { JSX } from "react";
 
 export type MenuProps = {
@@ -17,18 +18,36 @@ export type GroupMenuProps = {
   path: string;
 };
 
-export const WEBSITE_PAGE_MENU: MenuProps[] = [
+export const DASHBOARD_PAGE_MENU: MenuProps[] = [
   {
     id: 0,
-    label: "Home",
+    label: "Inicio",
     icon: <Home />,
-    path: "/",
+    path: "/dashboard",
     section: true,
   },
   {
     id: 1,
-    label: "About",
-    icon: <About />,
-    path: "/about",
+    label: "Transporte",
+    icon: <Truck />,
+    path: "/dashboard/transport",
+  },
+  {
+    id: 2,
+    label: "Paquetes",
+    icon: <Package />,
+    path: "/dashboard/packages",
+  },
+  {
+    id: 3,
+    label: "Empresas",
+    icon: <Users />,
+    path: "/dashboard/companies",
+  },
+  {
+    id: 4,
+    label: "Reportes",
+    icon: <FileText />,
+    path: "/dashboard/reports",
   },
 ];

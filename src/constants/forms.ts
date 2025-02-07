@@ -1,14 +1,14 @@
-export type AuthFormProps = {
+export type FormProps = {
   id: string;
-  type: "email" | "text" | "password";
-  inputType: "select" | "input";
+  type: "email" | "text" | "password" | "number" | "boolean";
+  inputType: "select" | "input" | "textarea" | "switch";
   options?: { value: string; label: string; id: string }[];
   label?: string;
   placeholder: string;
   name: string;
 };
 
-export const SIGN_UP_FORM: AuthFormProps[] = [
+export const SIGN_UP_FORM: FormProps[] = [
   {
     id: "1",
     inputType: "input",
@@ -46,7 +46,7 @@ export const SIGN_UP_FORM: AuthFormProps[] = [
   },
 ];
 
-export const SIGN_IN_FORM: AuthFormProps[] = [
+export const SIGN_IN_FORM: FormProps[] = [
   {
     id: "1",
     inputType: "input",
@@ -60,5 +60,43 @@ export const SIGN_IN_FORM: AuthFormProps[] = [
     placeholder: "Contraseña",
     name: "password",
     type: "password",
+  },
+];
+
+export const COMPANY_FORM: FormProps[] = [
+  {
+    id: "1",
+    inputType: "input",
+    placeholder: "Nombre",
+    name: "name",
+    type: "text",
+  },
+  {
+    id: "2",
+    inputType: "input",
+    placeholder: "Descripción",
+    name: "description",
+    type: "text",
+  },
+  {
+    id: "3",
+    inputType: "input",
+    placeholder: "Dirección",
+    name: "address",
+    type: "text",
+  },
+  {
+    id: "4",
+    inputType: "input",
+    placeholder: "Teléfono",
+    name: "phone",
+    type: "text",
+  },
+  {
+    id: "5",
+    inputType: "switch",
+    placeholder: "Habilitada",
+    name: "enabled",
+    type: "boolean",
   },
 ];

@@ -37,11 +37,11 @@ body {
 }
 
 .dark {
-  --background: rgb(23 23 23 / var(--tw-bg-opacity, 1));
+  --background: 240 4% 9%;
   --foreground: 140 5% 90%;
-  --card: 140 50% 0%;
+  --card: 100 9.8% 10%;
   --card-foreground: 140 5% 90%;
-  --popover: rgb(23 23 23 / var(--tw-bg-opacity, 1));
+  --popover: 240 4% 9%;
   --popover-foreground: 140 5% 90%;
   --primary: 140 72.8% 46.1%;
   --primary-foreground: 0 0% 100%;

@@ -1,18 +1,27 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Input, Label, Textarea } from "@/components/ui";
+import { Switch } from "@/components/ui/switch";
 import { ErrorMessage } from "@hookform/error-message";
-import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
+import {
+  FieldErrors,
+  FieldValues,
+  UseFormRegister,
+  UseFormWatch,
+} from "react-hook-form";
 
 type FormGeneratorProps = {
-  type?: "text" | "email" | "password" | "number";
-  inputType: "select" | "input" | "textarea";
+  type?: "text" | "email" | "password" | "number" | "boolean";
+  inputType: "select" | "input" | "textarea" | "switch";
   options?: { value: string; label: string; id: string }[];
   label?: string;
   placeholder: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   register: UseFormRegister<any>;
   name: string;
+  watch?: UseFormWatch<any>;
   errors: FieldErrors<FieldValues>;
   lines?: number;
+  value?: string;
+  disabled?: boolean;
 };
 
 export const FormGenerator = ({
@@ -21,10 +30,12 @@ export const FormGenerator = ({
   label,
   placeholder,
   register,
+  watch,
   name,
   errors,
   type,
   lines,
+  disabled,
 }: FormGeneratorProps) => {
   switch (inputType) {
     case "input":
@@ -36,6 +47,7 @@ export const FormGenerator = ({
             type={type}
             placeholder={placeholder}
             className="bg-themeBlack border-themeGray text-themeTextGray"
+            disabled={disabled}
             {...register(name)}
           />
           <ErrorMessage
@@ -88,8 +100,9 @@ export const FormGenerator = ({
             className="bg-themeBlack border-themeGray text-themeTextGray"
             id={`input-${label}`}
             placeholder={placeholder}
-            {...register(name)}
+            disabled={disabled}
             rows={lines}
+            {...register(name)}
           />
           <ErrorMessage
             errors={errors}
@@ -101,6 +114,23 @@ export const FormGenerator = ({
             )}
           />
         </Label>
+      );
+    case "switch":
+      const registerSwitch = register(name);
+      const switchValue = watch ? watch(name) : false;
+      return (
+        <div className="flex items-center space-x-2">
+          <Switch
+            id={`switch-${label}`}
+            checked={switchValue}
+            disabled={disabled}
+            ref={registerSwitch.ref}
+            onCheckedChange={(checked) => {
+              registerSwitch.onChange({ target: { value: checked, name } });
+            }}
+          />
+          <Label htmlFor={`switch-${label}`}>{placeholder}</Label>
+        </div>
       );
     default:
       return <></>;

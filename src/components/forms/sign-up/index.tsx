@@ -3,7 +3,7 @@ import { FormGenerator } from "@/components/global/form-generator";
 import { Loader } from "@/components/global/loader";
 import { Button } from "@/components/ui/button";
 import { CONSTANTS } from "@/constants";
-import { useCredentialSignUp } from "@/hooks/auth";
+import { useCredentialSignUp } from "@/hooks/use-auth";
 import dynamic from "next/dynamic";
 
 const OtpInput = dynamic(

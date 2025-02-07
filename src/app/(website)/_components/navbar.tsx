@@ -1,11 +1,11 @@
 "use client";
 
+import { BrandLogo } from "@/components/global/brand-logo";
 import { ModeToggle } from "@/components/global/mode-toogle";
 import { Tooltip } from "@/components/global/tooltip";
 import { Button } from "@/components/ui";
 import { LogIn, LogOut } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
-import Image from "next/image";
 import Link from "next/link";
 
 const NavBarPage = () => {
@@ -15,11 +15,7 @@ const NavBarPage = () => {
     <>
       <div className="flex w-full justify-between items-center">
         <div className="text-3xl font-semibold flex items-center gap-x-3">
-          <Image alt="logo" src="/cargoflow-logo.svg" width={40} height={40} />
-          <div>
-            <span className="text-themeTextWhite">Cargo</span>
-            <span className="text-primary">Flow</span>
-          </div>
+          <BrandLogo />
         </div>
         {/* <div className="hidden gap-x-10 items-center lg:flex">
           <Link

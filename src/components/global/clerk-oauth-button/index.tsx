@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui";
-import { useClerkSignIn } from "@/hooks/auth/clerk";
+import { useClerkSignIn } from "@/hooks/use-auth/clerk";
 import { Google } from "@/icons/google";
 import { Microsoft } from "@/icons/microsoft";
 import { Loader } from "../loader";

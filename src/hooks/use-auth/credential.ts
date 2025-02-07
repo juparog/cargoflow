@@ -104,13 +104,14 @@ export const useCredentialSignUp = () => {
   const onInitiateUserRegistration = handleSubmit(async (values) => {
     setCreating(true);
     const response = await verifyOTPCode(values.email, code);
-    if (!response.error) {
+    if (response.success) {
       const user = await onSignUpUser({
-        ...values,
         firstname: values.firstname,
         lastname: values.lastname,
         email: values.email,
         password: values.password,
+        username: values.username || null,
+        emailVerified: new Date(),
       });
 
       if (!user) {

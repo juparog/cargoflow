@@ -1,74 +1,66 @@
 "use server";
 
-import client from "@/lib/prisma";
-import { AUTH_PROVIDER, User } from "@prisma/client";
+import client, { handlePrismaError } from "@/lib/prisma";
+import { Prisma, RoleType, User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { addMinutes } from "date-fns";
+import { onCreateNotification } from "./notification";
 
-// export const onAuthenticatedUser = async () => {
-//   try {
-//     const auth
-//   } catch (error) {
-
-//   }
-// }
-
-export const onSignUpUser = async (data: {
-  firstname: string;
-  lastname: string;
-  email: string;
-  password?: string;
-  authProvider?: AUTH_PROVIDER;
-  username?: string | null;
-  image?: string | null;
-}): Promise<User | null> => {
+export const onSignUpUser = async (
+  data: Prisma.UserCreateInput
+): Promise<User | null> => {
   try {
-    const hashedPassword = data.password
-      ? await bcrypt.hash(data.password, 10)
-      : null;
-    const commonData = {
-      authProvider: data.authProvider || AUTH_PROVIDER.CREDENTIAL,
-      emailVerified: new Date(),
-      image: data.image,
-    };
-    const user = await client.user.upsert({
-      where: { email: data.email },
-      create: {
+    const hashedPassword =
+      typeof data.password === "string"
+        ? await bcrypt.hash(data.password, 10)
+        : null;
+
+    const userCount = await client.user.count();
+
+    const user = await client.user.create({
+      data: {
         ...data,
-        ...commonData,
         password: hashedPassword,
+        roles: userCount === 0 ? [RoleType.ADMIN] : [RoleType.USER],
       },
-      update: {
-        ...commonData,
-      },
+    });
+
+    await onCreateNotification({
+      title: "Bienvenido 🎉",
+      content: `Bienvenido a nuestra plataforma, ${user.firstname}!`,
+      createdBy: user.id,
+      targetId: user.id,
     });
 
     return user;
   } catch (error) {
-    console.error("Failed to register user:", error);
-    return null;
+    throw handlePrismaError(error);
   }
 };
 
 export async function generateOTPCode(email: string) {
-  const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-  const hashedCode = await bcrypt.hash(otpCode, 10);
-  const expiresAt = addMinutes(new Date(), 10);
+  try {
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedCode = await bcrypt.hash(otpCode, 10);
+    const expiresAt = addMinutes(new Date(), 10);
 
-  await client.oTP.upsert({
-    where: { email },
-    create: {
-      email,
-      code: hashedCode,
-      expiresAt,
-    },
-    update: {
-      code: hashedCode,
-      expiresAt,
-    },
-  });
+    await client.oTP.upsert({
+      where: { email },
+      create: {
+        email,
+        code: hashedCode,
+        expiresAt,
+      },
+      update: {
+        code: hashedCode,
+        expiresAt,
+      },
+    });
 
-  return otpCode;
+    return otpCode;
+  } catch (error) {
+    throw handlePrismaError(error);
+  }
 }
 
 export async function sendOTPCode(email: string) {

@@ -1,18 +1,14 @@
 import { AccessDenied } from "@auth/core/errors";
-import { AUTH_PROVIDER } from "@prisma/client";
+import { AuthProviderType } from "@prisma/client";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
 import { onSignUpUser } from "./actions/auth";
-import { getUserByEmailOrUsername } from "./actions/user";
+import { onGetUserByEmailOrUsername } from "./actions/user";
 import { comparePasswords } from "./lib/utils";
 
 declare module "@auth/core/types" {
   interface User {
-    id?: string;
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
     enabled: boolean;
   }
 }
@@ -27,14 +23,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (parsedCredentials.success) {
           const { emailOrUsername, password } = parsedCredentials.data;
-          const user = await getUserByEmailOrUsername(emailOrUsername);
+          const user = await onGetUserByEmailOrUsername(emailOrUsername);
           if (!user) return null;
           const passwordsMatch = await comparePasswords(
             password,
             user.password
           );
 
-          if (passwordsMatch) return user;
+          if (passwordsMatch) {
+            return {
+              ...user,
+              name: `${user.firstname} ${user.lastname}`,
+              image: user.image,
+              roles: user.roles,
+              enabled: user.enabled,
+            };
+          }
         }
 
         console.error("Invalid credentials");
@@ -53,15 +57,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       userinfo: process.env.AUTH_CLERK_USERINFO_URL,
       checks: ["state"],
       profile: async (profile) => {
-        const user = await onSignUpUser({
+        const userExists = await onGetUserByEmailOrUsername(profile.email);
+        if (userExists) return userExists;
+
+        const userCreated = await onSignUpUser({
           email: profile.email,
           firstname: profile.given_name,
           lastname: profile.family_name,
-          authProvider: AUTH_PROVIDER.CLERK,
+          authProvider: AuthProviderType.CLERK,
           image: profile.picture,
+          emailVerified: new Date(),
         });
-        if (!user) throw new Error("Failed to create user");
-        return user;
+        if (!userCreated) throw new Error("Failed to create user");
+
+        return {
+          ...userCreated,
+          name: `${userCreated.firstname} ${userCreated.lastname}`,
+          image: userCreated.image,
+          enabled: userCreated.enabled,
+        };
       },
     },
   ],
@@ -74,11 +88,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.picture = user.image;
+        token.name = user.name;
       }
       return token;
     },
     async session({ session, token }) {
       session.user.image = token.picture;
+      session.user.name = token.name;
       return session;
     },
   },
