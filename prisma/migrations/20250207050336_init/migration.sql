@@ -214,6 +214,12 @@ CREATE UNIQUE INDEX "otps_email_key" ON "otps"("email");
 CREATE INDEX "otps_email_idx" ON "otps"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "companies_name_key" ON "companies"("name");
+
+-- CreateIndex
+CREATE INDEX "companies_name_idx" ON "companies"("name");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "vehicles_license_plate_key" ON "vehicles"("license_plate");
 
 -- CreateIndex
