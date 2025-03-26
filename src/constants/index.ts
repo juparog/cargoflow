@@ -1,20 +1,38 @@
 import { PaginationState } from "@tanstack/react-table";
-import { COMPANY_FORM, FormProps, SIGN_IN_FORM, SIGN_UP_FORM } from "./forms";
+import {
+  COMPANY_FORM,
+  FormProps,
+  SIGN_IN_FORM,
+  SIGN_UP_FORM,
+  TRANSPORT_RECORD_FORM,
+  VEHICLE_FORM,
+} from "./forms";
+import { ITEMS_PER_PAGE_OPTIONS, PAGINATED_GRID } from "./items";
 import { DASHBOARD_PAGE_MENU, MenuProps } from "./menus";
-import { COMAPANIES_PAGINATED_TABLE } from "./tables";
+import { PAGINATED_TABLE, ROWS_PER_PAGE_OPTIONS } from "./tables";
 
 type ConstantsProps = {
   signUpForm: FormProps[];
   signInForm: FormProps[];
   dashboardPageMenu: MenuProps[];
+  rowPerPageOptions: number[];
+  itemPerPageOptions: number[];
+  paginatedTable: PaginationState;
+  paginatedGrid: PaginationState;
   companyForm: FormProps[];
-  companiesPaginatedTable: PaginationState;
+  vehicleForm: FormProps[];
+  transportRecordForm: FormProps[];
 };
 
 export const CONSTANTS: ConstantsProps = {
   dashboardPageMenu: DASHBOARD_PAGE_MENU,
   signUpForm: SIGN_UP_FORM,
   signInForm: SIGN_IN_FORM,
+  rowPerPageOptions: ROWS_PER_PAGE_OPTIONS,
+  itemPerPageOptions: ITEMS_PER_PAGE_OPTIONS,
+  paginatedTable: PAGINATED_TABLE,
+  paginatedGrid: PAGINATED_GRID,
   companyForm: COMPANY_FORM,
-  companiesPaginatedTable: COMAPANIES_PAGINATED_TABLE,
+  vehicleForm: VEHICLE_FORM,
+  transportRecordForm: TRANSPORT_RECORD_FORM,
 };

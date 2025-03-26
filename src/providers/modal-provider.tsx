@@ -9,6 +9,7 @@ interface ModalProviderProps {
 export type ModalData = {
   user?: User;
 };
+
 type ModalContextType = {
   data: ModalData;
   isOpen: boolean;

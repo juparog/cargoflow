@@ -6,6 +6,12 @@ const nextConfig: NextConfig = {
       {
         hostname: "storage.googleapis.com",
       },
+      {
+        hostname: "avatars.githubusercontent.com",
+      },
+      {
+        hostname: "loremflickr.com",
+      },
     ],
   },
 };

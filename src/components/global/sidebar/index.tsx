@@ -70,26 +70,24 @@ const Sidebar = ({ sidebarLogo, sidebarOpt, defaultOpen }: Props) => {
           <Separator className="mb-4" />
           <nav className="relative">
             <Command className="rounded-lg overflow-visible bg-transparent">
-              <CommandInput placeholder="Search..." />
+              <CommandInput placeholder="Buscar..." />
               <CommandList className="py-4 overflow-visible">
                 <CommandEmpty>No Results Found</CommandEmpty>
                 <CommandGroup className="overflow-visible">
-                  {sidebarOpt.map((sidebarOptions) => {
-                    return (
-                      <CommandItem
-                        key={sidebarOptions.id}
-                        className="md:w-[320px] w-full"
+                  {sidebarOpt.map((sidebarOptions) => (
+                    <CommandItem
+                      key={sidebarOptions.id}
+                      className="md:w-[320px] w-full"
+                    >
+                      <Link
+                        href={sidebarOptions.path}
+                        className="flex items-center gap-2 hover:bg-transparent rounded-md transition-all md:w-full w-[320px]"
                       >
-                        <Link
-                          href={sidebarOptions.path}
-                          className="flex items-center gap-2 hover:bg-transparent rounded-md transition-all md:w-full w-[320px]"
-                        >
-                          {sidebarOptions.icon}
-                          <span>{sidebarOptions.label}</span>
-                        </Link>
-                      </CommandItem>
-                    );
-                  })}
+                        {sidebarOptions.icon}
+                        <span>{sidebarOptions.label}</span>
+                      </Link>
+                    </CommandItem>
+                  ))}
                 </CommandGroup>
               </CommandList>
             </Command>

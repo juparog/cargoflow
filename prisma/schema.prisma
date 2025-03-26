@@ -118,7 +118,7 @@ model Company {
 model Vehicle {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
-  name         String
+  name         String       @unique
   licensePlate String       @unique @map("license_plate")
   brand        String?
   model        String?
@@ -131,13 +131,30 @@ model Vehicle {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
 
+  @@index([name])
   @@map("vehicles")
+}
+
+model TransportRoute {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  name        String
+  description String?
+  image       String?
+  enabled     Boolean @default(true)
+
+  transportRecords TransportRecord[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@map("transport_routes")
 }
 
 model TransportRecord {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
-  title         String
+  routeId       String                    @map("route_id") @db.Uuid
   vehicleId     String                    @map("vehicle_id") @db.Uuid
   driverId      String                    @map("driver_id") @db.Uuid
   status        TransportRecordStatusType @default(PENDING)
@@ -145,11 +162,12 @@ model TransportRecord {
   initialAmount Float                     @default(0.0) @map("initial_amount")
   enabled       Boolean                   @default(true)
 
-  vehicle                  Vehicle                  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  driver                   User                     @relation(fields: [driverId], references: [id], onDelete: Cascade)
-  transportRecordHistories TransportRecordHistory[]
-  transportExpenses        TransportExpense[]
-  packages                 Package[]
+  route     TransportRoute            @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  vehicle   Vehicle                   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  driver    User                      @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  movements TransportRecordMovement[]
+  histories TransportRecordHistory[]
+  packages  Package[]
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
@@ -157,12 +175,12 @@ model TransportRecord {
   @@map("transport_records")
 }
 
-model TransportExpense {
+model TransportRecordMovement {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
-  transportId String   @map("transport_id") @db.Uuid
+  transportId String                      @map("transport_id") @db.Uuid
   amount      Float
-  isIncoming  Boolean  @default(false) @map("is_incoming")
+  type        TransportRecordMovementType @default(OUTGOING)
   description String?
   images      String[]
 
@@ -281,7 +299,12 @@ enum TransportRecordStatusType {
   PENDING
   ONGOING
   COMPLETED
-  CANCELLED
+  CANCELED
+}
+
+enum TransportRecordMovementType {
+  INCOMING
+  OUTGOING
 }
 
 enum PackageStatusType {

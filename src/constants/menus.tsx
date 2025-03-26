@@ -1,5 +1,5 @@
 import { Home } from "@/icons";
-import { FileText, Package, Truck, Users } from "lucide-react";
+import { Factory, FileText, Package, Truck } from "lucide-react";
 import { JSX } from "react";
 
 export type MenuProps = {
@@ -41,7 +41,7 @@ export const DASHBOARD_PAGE_MENU: MenuProps[] = [
   {
     id: 3,
     label: "Empresas",
-    icon: <Users />,
+    icon: <Factory />,
     path: "/dashboard/companies",
   },
   {

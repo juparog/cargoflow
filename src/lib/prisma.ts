@@ -2,13 +2,30 @@ import { Prisma, PrismaClient } from "@prisma/client";
 
 const client = new PrismaClient();
 
+// if (typeof window === "undefined") {
+//   client.$extends({
+//     model: {
+//       $allModels: {
+//         async findManyPaginated<T>(
+//           this: T,
+//           where?: Prisma.Args<T, "findMany">["where"]
+//         ): Promise<number> {
+//           // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//           const ctx = Prisma.getExtensionContext(this) as any;
+//           return ctx.count({ where });
+//         },
+//       },
+//     },
+//   });
+// }
+
 const globalForPrisma = global as unknown as { prisma: typeof client };
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = client;
 
 export default client;
 
-export const handlePrismaError = (error: unknown) => {
+export const handlePrismaError = async (error: unknown) => {
   let message =
     error instanceof Error ? error.message : "¡Ups! Algo salió mal.";
   if (error instanceof Prisma.PrismaClientKnownRequestError) {

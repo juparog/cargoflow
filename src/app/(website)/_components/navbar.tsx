@@ -17,15 +17,6 @@ const NavBarPage = () => {
         <div className="text-3xl font-semibold flex items-center gap-x-3">
           <BrandLogo />
         </div>
-        {/* <div className="hidden gap-x-10 items-center lg:flex">
-          <Link
-            href="#inicio"
-            className="bg-primary py-2 px-5 font-semibold text-lg rounded-full hover:bg-primary/80"
-          >
-            Inicio
-          </Link>
-          <Link href="#nosotros">Nosotros</Link>
-        </div> */}
         <div className="flex items-center gap-x-4">
           <ModeToggle />
           {session ? (

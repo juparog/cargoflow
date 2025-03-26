@@ -4,24 +4,27 @@ import CustomModal from "@/components/global/custom-modal";
 import { DataTable } from "@/components/global/data-table";
 import Loading from "@/components/global/loading";
 import { Button } from "@/components/ui/button";
+import { CONSTANTS } from "@/constants";
 import {
   useDeleteCompany,
   useFetchPaginatedCompanies,
   useUpdateCompanyEnabled,
 } from "@/hooks/use-company";
+import { getFilters, getSorting } from "@/lib/utils";
 import { useModal } from "@/providers/modal-provider";
 import { ColumnFiltersState, SortingState } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 import { companyColumns } from "./_components/columns";
 
 const CompaniesPage = () => {
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
+  const [pagination, setPagination] = useState(CONSTANTS.paginatedTable);
   const [filters, setFilters] = useState<ColumnFiltersState>([
     { id: "name", value: "" },
   ]);
   const [order, setOrder] = useState<SortingState>([]);
   const [onCompletSubmit, setOnCompletSubmit] = useState<boolean>(false);
 
+  const { setOpen, setClose } = useModal();
   const {
     companiesPaginated,
     isPendingCompaniesPaginated,
@@ -32,8 +35,6 @@ const CompaniesPage = () => {
     limit: pagination.pageSize,
     sortBy: getSorting(order),
   });
-
-  const { setOpen, setClose } = useModal();
   const { deleteCompany, isPendingDeleteCompany } = useDeleteCompany();
   const { updateCompanyEnabled, isPendingUpdateCompanyEnabled } =
     useUpdateCompanyEnabled();
@@ -113,7 +114,7 @@ const CompaniesPage = () => {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Empresas</h1>
         <Button onClick={() => openModalWithForm("create")}>
-          Añadir Empresa
+          Agregar Empresa
         </Button>
       </div>
 
@@ -129,8 +130,8 @@ const CompaniesPage = () => {
           data={companiesPaginated?.data || []}
           totalCount={companiesPaginated?.totalCount || 0}
           pagination={pagination}
-          onPaginationChange={setPagination}
           initialFilters={filters}
+          onPaginationChange={setPagination}
           onFiltersChange={(filters) => setFilters(filters)}
           onOrderChange={(order) => setOrder(order)}
         />
@@ -159,17 +160,6 @@ const getModalSubheading = (type: "create" | "edit" | "view") => {
     case "view":
       return "Aquí están los detalles de la empresa seleccionada.";
   }
-};
-
-const getFilters = (filters: ColumnFiltersState) => ({
-  name: filters.find((f) => f.id === "name")?.value as string,
-  enabled: (filters.find((f) => f.id === "enabled")?.value as boolean) ?? "all",
-});
-
-const getSorting = (order: SortingState) => {
-  return order.map((o) => ({
-    [o.id]: o.desc ? "desc" : "asc",
-  }));
 };
 
 export default CompaniesPage;

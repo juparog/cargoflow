@@ -1,6 +1,7 @@
 import {
   FindCompaniesOptions,
   FindCompaniesPaginatedOptions,
+  IncludeCompanyOptions,
   onCreateCompany,
   onDeleteCompany,
   onGetCompanies,
@@ -12,7 +13,10 @@ import { Company, Prisma } from "@prisma/client";
 import { useMutationData } from "./use-mutation";
 import { useQueryData } from "./use-query";
 
-export const useFetchCompanies = (options?: FindCompaniesOptions) => {
+export const useFetchCompanies = (options?: {
+  filters?: FindCompaniesOptions;
+  includes?: IncludeCompanyOptions;
+}) => {
   const { data: companies, isPending: isPendingCompanies } = useQueryData<
     Prisma.PromiseReturnType<typeof onGetCompanies>
   >(["companies"], () => onGetCompanies(options));
@@ -48,7 +52,7 @@ export const useFetchCompanyById = (id: string, enabled?: boolean) => {
       if (!id) {
         return { company: null, isPendingCompany: false };
       }
-      return onGetCompanyById(id, { enabled });
+      return onGetCompanyById(id, { filters: { enabled } });
     });
 
   return {

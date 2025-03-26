@@ -1,4 +1,4 @@
-import { onGetUserByEmail } from "@/actions/user";
+import { onGetUserByEmail, onGetUsers } from "@/actions/user";
 import { Prisma } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useQueryData } from "./use-query";
@@ -16,4 +16,12 @@ export const useUserPage = () => {
   >(["notifications"], () => onGetUserByEmail(session?.user?.email || ""));
 
   return { user };
+};
+
+export const useFetchUsers = () => {
+  const { data: users, isPending: isPendingUsers } = useQueryData<
+    Prisma.PromiseReturnType<typeof onGetUsers>
+  >(["users"], () => onGetUsers());
+
+  return { users, isPendingUsers };
 };

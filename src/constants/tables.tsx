@@ -1,6 +1,8 @@
 import { PaginationState } from "@tanstack/react-table";
 
-export const COMAPANIES_PAGINATED_TABLE: PaginationState = {
+export const PAGINATED_TABLE: PaginationState = {
   pageIndex: 0,
-  pageSize: 5,
+  pageSize: 10,
 };
+
+export const ROWS_PER_PAGE_OPTIONS = [5, 10, 20, 30, 40, 50];

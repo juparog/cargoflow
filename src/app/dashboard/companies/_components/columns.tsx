@@ -1,4 +1,5 @@
 import { DataTableColumnHeader } from "@/components/global/data-table";
+import { Tooltip } from "@/components/global/tooltip";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -106,59 +107,65 @@ export const companyColumns = (
       cell: ({ row }) => {
         const company = row.original;
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Abrir menú</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(company.id)}
-              >
-                <Copy /> Copiar ID
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <button
-                  onClick={() => openModalWithForm("view", company.id)}
-                  className="w-full text-left"
+          <div className="flex justify-end">
+            <DropdownMenu>
+              <Tooltip content="Más acciones">
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Abrir menú</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </Tooltip>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={() => navigator.clipboard.writeText(company.id)}
                 >
-                  <Eye /> Ver
-                </button>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <button
-                  onClick={() => openModalWithForm("edit", company.id)}
-                  className="w-full text-left"
-                >
-                  <Edit /> Editar
-                </button>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <button
-                  onClick={() =>
-                    handleChangeEnabled(company.id, !company.enabled)
-                  }
-                  className="w-full text-left"
-                >
-                  {company.enabled ? <X /> : <Check />}{" "}
-                  {company.enabled ? "Deshabilitar" : "Habilitar"}
-                </button>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <button
-                  onClick={() => handleDeleteCompany(company.id, company.name)}
-                  className="w-full text-left text-red-500"
-                >
-                  <Trash /> Eliminar
-                </button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  <Copy /> Copiar ID
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <button
+                    onClick={() => openModalWithForm("view", company.id)}
+                    className="w-full text-left"
+                  >
+                    <Eye /> Ver
+                  </button>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <button
+                    onClick={() => openModalWithForm("edit", company.id)}
+                    className="w-full text-left"
+                  >
+                    <Edit /> Editar
+                  </button>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <button
+                    onClick={() =>
+                      handleChangeEnabled(company.id, !company.enabled)
+                    }
+                    className="w-full text-left"
+                  >
+                    {company.enabled ? <X /> : <Check />}{" "}
+                    {company.enabled ? "Deshabilitar" : "Habilitar"}
+                  </button>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <button
+                    onClick={() =>
+                      handleDeleteCompany(company.id, company.name)
+                    }
+                    className="w-full text-left text-red-500"
+                  >
+                    <Trash /> Eliminar
+                  </button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         );
       },
     },

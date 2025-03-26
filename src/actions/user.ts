@@ -8,8 +8,7 @@ export async function onGetUserByEmail(email: string): Promise<User | null> {
     const user = await client.user.findFirst({ where: { email } });
     return user;
   } catch (error) {
-    console.error("Failed to fetch user:", handlePrismaError(error).message);
-    throw new Error("Failed to fetch user.");
+    throw handlePrismaError(error);
   }
 }
 
@@ -24,7 +23,15 @@ export async function onGetUserByEmailOrUsername(
     });
     return user;
   } catch (error) {
-    console.error("Failed to fetch user:", handlePrismaError(error).message);
-    throw new Error("Failed to fetch user.");
+    throw handlePrismaError(error);
   }
 }
+
+export const onGetUsers = async () => {
+  try {
+    const users = await client.user.findMany();
+    return users;
+  } catch (error) {
+    throw handlePrismaError(error);
+  }
+};

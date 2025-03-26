@@ -11,7 +11,10 @@ CREATE TYPE "NotificationType" AS ENUM ('INFO', 'ERROR', 'SUCCESS', 'WARNING');
 CREATE TYPE "VehicleType" AS ENUM ('CAR', 'MOTORCYCLE', 'TRUCK', 'BUS', 'BICYCLE');
 
 -- CreateEnum
-CREATE TYPE "TransportRecordStatusType" AS ENUM ('PENDING', 'ONGOING', 'COMPLETED', 'CANCELLED');
+CREATE TYPE "TransportRecordStatusType" AS ENUM ('PENDING', 'ONGOING', 'COMPLETED', 'CANCELED');
+
+-- CreateEnum
+CREATE TYPE "TransportRecordMovementType" AS ENUM ('INCOMING', 'OUTGOING');
 
 -- CreateEnum
 CREATE TYPE "PackageStatusType" AS ENUM ('PENDING', 'ONGOING', 'IN_OFFICE', 'COMPLETED', 'RETURNED');
@@ -110,9 +113,22 @@ CREATE TABLE "vehicles" (
 );
 
 -- CreateTable
+CREATE TABLE "transport_routes" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "image" TEXT,
+    "enabled" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3),
+
+    CONSTRAINT "transport_routes_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "transport_records" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
-    "title" TEXT NOT NULL,
+    "route_id" UUID NOT NULL,
     "vehicle_id" UUID NOT NULL,
     "driver_id" UUID NOT NULL,
     "status" "TransportRecordStatusType" NOT NULL DEFAULT 'PENDING',
@@ -130,7 +146,7 @@ CREATE TABLE "transport_expenses" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "transport_id" UUID NOT NULL,
     "amount" DOUBLE PRECISION NOT NULL,
-    "is_incoming" BOOLEAN NOT NULL DEFAULT false,
+    "type" "TransportRecordMovementType" NOT NULL DEFAULT 'OUTGOING',
     "description" TEXT,
     "images" TEXT[],
     "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
@@ -220,7 +236,13 @@ CREATE UNIQUE INDEX "companies_name_key" ON "companies"("name");
 CREATE INDEX "companies_name_idx" ON "companies"("name");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "vehicles_name_key" ON "vehicles"("name");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "vehicles_license_plate_key" ON "vehicles"("license_plate");
+
+-- CreateIndex
+CREATE INDEX "vehicles_name_idx" ON "vehicles"("name");
 
 -- CreateIndex
 CREATE INDEX "transport_history_transport_id_changed_by_idx" ON "transport_history"("transport_id", "changed_by");
@@ -242,6 +264,9 @@ ALTER TABLE "notification_history" ADD CONSTRAINT "notification_history_notifica
 
 -- AddForeignKey
 ALTER TABLE "notification_history" ADD CONSTRAINT "notification_history_changed_by_fkey" FOREIGN KEY ("changed_by") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "transport_records" ADD CONSTRAINT "transport_records_route_id_fkey" FOREIGN KEY ("route_id") REFERENCES "transport_routes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "transport_records" ADD CONSTRAINT "transport_records_vehicle_id_fkey" FOREIGN KEY ("vehicle_id") REFERENCES "vehicles"("id") ON DELETE CASCADE ON UPDATE CASCADE;

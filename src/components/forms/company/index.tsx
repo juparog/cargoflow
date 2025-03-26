@@ -12,7 +12,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { CompanySchema } from "./schema";
 
-interface CompanyFormProps {
+interface Props {
   actionType: "create" | "edit" | "view";
   companyId?: string;
   enabled?: boolean;
@@ -26,7 +26,7 @@ const CompanyForm = ({
   enabled,
   onCompletSubmit,
   onClose,
-}: CompanyFormProps) => {
+}: Props) => {
   const { company } = useFetchCompanyById(companyId || "", enabled);
 
   const {
@@ -76,7 +76,6 @@ const CompanyForm = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {/* Campos del formulario */}
       {CONSTANTS.companyForm.map((field) => (
         <FormGenerator
           {...field}
@@ -88,7 +87,6 @@ const CompanyForm = ({
         />
       ))}
 
-      {/* Footer del Modal */}
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onClose}>
           {readOnly ? "Cerrar" : "Cancelar"}

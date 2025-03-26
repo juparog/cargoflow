@@ -2,11 +2,11 @@
 
 import client, { handlePrismaError } from "@/lib/prisma";
 import { Company, Prisma } from "@prisma/client";
+import { buildWhere, getPaginatedRecords } from "./pagination";
 
 export interface FindCompaniesOptions {
   name?: string;
   enabled?: boolean | "all";
-  includePackages?: boolean;
 }
 
 export interface FindCompaniesPaginatedOptions extends FindCompaniesOptions {
@@ -15,6 +15,10 @@ export interface FindCompaniesPaginatedOptions extends FindCompaniesOptions {
   sortBy?: {
     [field in keyof Company]?: "asc" | "desc";
   }[];
+}
+
+export interface IncludeCompanyOptions {
+  packages: boolean;
 }
 
 export const onCreateCompany = async (data: Prisma.CompanyCreateInput) => {
@@ -30,14 +34,17 @@ export const onCreateCompany = async (data: Prisma.CompanyCreateInput) => {
   }
 };
 
-export const onGetCompanies = async (options?: FindCompaniesOptions) => {
+export const onGetCompanies = async (options?: {
+  filters?: FindCompaniesOptions;
+  includes?: IncludeCompanyOptions;
+}) => {
   try {
     const companies = await client.company.findMany({
       where: {
-        ...buildWhere(options),
+        ...(await buildWhere(options?.filters)),
       },
       include: {
-        packages: !!options?.includePackages,
+        ...options?.includes,
       },
     });
 
@@ -51,32 +58,13 @@ export const onGetCompaniesPaginated = async (
   options?: FindCompaniesPaginatedOptions
 ) => {
   try {
-    const { skip, page, limit, sortBy } = buildPaginatedControls(options);
-
-    const [data, totalCount] = await Promise.all([
-      client.company.findMany({
-        where: {
-          ...buildWhere(options),
-        },
-        include: {
-          packages: !!options?.includePackages,
-        },
-        skip: skip,
-        take: limit,
-        orderBy: sortBy,
-      }),
-      client.company.count({
-        where: {
-          ...buildWhere(options),
-        },
-      }),
-    ]);
-
+    const result = await getPaginatedRecords("company", {
+      ...options,
+      filters: await buildWhere(options),
+    });
     return {
-      totalCount,
-      page,
-      limit,
-      data,
+      ...result,
+      data: result.data as unknown as Company[],
     };
   } catch (error) {
     throw handlePrismaError(error);
@@ -85,16 +73,19 @@ export const onGetCompaniesPaginated = async (
 
 export const onGetCompanyById = async (
   id: string,
-  options?: FindCompaniesOptions
+  options?: {
+    filters?: FindCompaniesOptions;
+    includes?: IncludeCompanyOptions;
+  }
 ) => {
   try {
     const company = await client.company.findUnique({
       where: {
-        ...buildWhere(options),
+        ...(await buildWhere(options?.filters)),
         id,
       },
       include: {
-        packages: !!options?.includePackages,
+        ...options?.includes,
       },
     });
 
@@ -131,30 +122,4 @@ export const onDeleteCompany = async (id: string) => {
   } catch (error) {
     throw handlePrismaError(error);
   }
-};
-
-const buildWhere = (filter?: FindCompaniesOptions) => {
-  const filters = {} as Prisma.CompanyWhereInput;
-
-  if (filter?.enabled !== "all") {
-    filters.enabled = filter?.enabled ?? true;
-  }
-
-  if (filter?.name) {
-    filters.name = {
-      contains: filter.name,
-      mode: "insensitive",
-    };
-  }
-
-  return filters;
-};
-
-const buildPaginatedControls = (options?: FindCompaniesPaginatedOptions) => {
-  const page = options?.page || 1;
-  const limit = options?.limit || 10;
-  const skip = limit * (page - 1);
-  const sortBy = options?.sortBy || [{ name: "asc" }];
-
-  return { skip, limit, page, sortBy };
 };

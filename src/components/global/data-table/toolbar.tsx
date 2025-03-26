@@ -3,8 +3,8 @@
 import { Button, Input } from "@/components/ui";
 import { Table } from "@tanstack/react-table";
 import { Square, SquareCheckBig, X } from "lucide-react";
-import { DataTableFacetedFilter } from "./faceted-filter";
-import { DataTableRadioFilter } from "./radio-filter";
+import { DataTableFacetedFilter } from "../data-utils/faceted-filter";
+import { DataTableRadioFilter } from "../data-utils/radio-filter";
 import { DataTableViewOptions } from "./view-options";
 
 export interface CustomFilter {
@@ -20,11 +20,11 @@ export interface CustomFilter {
 
 interface Props<TData> {
   table: Table<TData>;
-  filterKey?: {
+  search?: {
     column: string;
     label: string;
   };
-  enableDefaultFilter?: boolean;
+  defaultFilter?: boolean;
   customFilters?: CustomFilter[];
 }
 
@@ -43,8 +43,8 @@ export const enableOptions = [
 
 export function DataTableToolbar<TData>({
   table,
-  filterKey = { column: "name", label: "Nombre" },
-  enableDefaultFilter = true,
+  search = { column: "name", label: "Nombre" },
+  defaultFilter = true,
   customFilters = [],
 }: Props<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
@@ -52,23 +52,20 @@ export function DataTableToolbar<TData>({
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
-        {filterKey && (
+        {search && (
           <Input
-            placeholder={`Filtro por ${filterKey.label}...`}
+            placeholder={`Filtro por ${search.label}...`}
             value={
-              (table.getColumn(filterKey.column)?.getFilterValue() as string) ??
-              ""
+              (table.getColumn(search.column)?.getFilterValue() as string) ?? ""
             }
             onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-              table
-                .getColumn(filterKey.column)
-                ?.setFilterValue(event.target.value)
+              table.getColumn(search.column)?.setFilterValue(event.target.value)
             }
             className="h-8 w-[150px] lg:w-[250px]"
           />
         )}
 
-        {enableDefaultFilter && table.getColumn("enabled") && (
+        {defaultFilter && table.getColumn("enabled") && (
           <DataTableRadioFilter
             column={table.getColumn("enabled")}
             title="Habilitada"

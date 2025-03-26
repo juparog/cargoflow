@@ -11,7 +11,7 @@ export const useMutationData = (
   mutationKey: MutationKey,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mutationFn: MutationFunction<any, any>,
-  queryKey?: string,
+  queryKey?: string | string[],
   onSuccess?: () => void
 ) => {
   const client = useQueryClient();
@@ -30,7 +30,7 @@ export const useMutationData = (
     },
     onSettled: async () => {
       return await client.invalidateQueries({
-        queryKey: [queryKey],
+        queryKey: queryKey instanceof Array ? queryKey : [queryKey],
         exact: true,
       });
     },
